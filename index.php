@@ -41,7 +41,7 @@ if ($method === 'GET' && $endpoint === 'patients') {
     }
 
     //responder con los datos
-    sendOutput($message, ["idPatient" => $id]);
+    sendOutput($message, ["$id"]);
 } elseif ($method === 'PUT' && preg_match('/^productos\/(\d+)$/', $endpoint, $matches)) {
     $idPatient = $matches[1];
     //actualizar paciente
