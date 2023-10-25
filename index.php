@@ -45,4 +45,18 @@ if ($method === 'GET' && $endpoint === 'patients') {
 } elseif ($method === 'PUT' && preg_match('/^productos\/(\d+)$/', $endpoint, $matches)) {
     $idPatient = $matches[1];
     //actualizar paciente
+    $name = $_POST["name"];
+    $surnames = $_POST["surnames"];
+    $birthdate = $_POST["birthdate"];
+    $phone = $_POST["phone"];
+    $photo = null;
+
+    $sql = "UPDATE INTO patients name = '$name', surnames = '$surnames', birthdate = '$birthdate', phone = '$phone', photourl = '$photo' WHERE idPatient = '$idPatient'";
+
+    if (mysqli_query($conn, $sql)) {
+        $id = mysqli_insert_id($conn);
+        sendOutput("Actualizado con éxito.", ["1"]);
+    } else {
+        sendOutput("Error al actualizar.", ["-1"]);
+    }
 }
