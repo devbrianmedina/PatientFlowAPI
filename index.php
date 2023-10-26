@@ -42,19 +42,20 @@ if ($method === 'GET' && $endpoint === 'patients') {
 
     //responder con los datos
     sendOutput($message, ["$id"]);
-} elseif ($method === 'PUT' && preg_match('/^productos\/(\d+)$/', $endpoint, $matches)) {
+} elseif ($method === 'PUT' && preg_match('/^patients\/(\d+)$/', $endpoint, $matches)) {
     $idPatient = $matches[1];
+    //obtiene los datos del body
+    parse_str(file_get_contents('php://input'), $_PUT);
     //actualizar paciente
-    $name = $_POST["name"];
-    $surnames = $_POST["surnames"];
-    $birthdate = $_POST["birthdate"];
-    $phone = $_POST["phone"];
+    $name = $_PUT["name"];
+    $surnames = $_PUT["surnames"];
+    $birthdate = $_PUT["birthdate"];
+    $phone = $_PUT["phone"];
     $photo = null;
 
-    $sql = "UPDATE INTO patients name = '$name', surnames = '$surnames', birthdate = '$birthdate', phone = '$phone', photourl = '$photo' WHERE idPatient = '$idPatient'";
+    $sql = "UPDATE patients SET name = '$name', surnames = '$surnames', birthdate = '$birthdate', phone = '$phone', photourl = '$photo' WHERE idPatient = '$idPatient'";
 
     if (mysqli_query($conn, $sql)) {
-        $id = mysqli_insert_id($conn);
         sendOutput("Actualizado con éxito.", ["1"]);
     } else {
         sendOutput("Error al actualizar.", ["-1"]);
