@@ -11,7 +11,7 @@ $request_uri = $_SERVER['REQUEST_URI'];
 $endpoint = str_replace("/index.php/", "", $request_uri);
 
 // Manejo de las solicitudes según el método y el endpoint
-if ($method === 'GET' && $endpoint === 'patients') {
+if ($method === 'GET' && $endpoint === 'patients') { /// patients ///
     // obtener todos los pacientes
     $sql = "SELECT * FROM patients";
     $result = mysqli_query($conn, $sql);
@@ -60,4 +60,54 @@ if ($method === 'GET' && $endpoint === 'patients') {
     } else {
         sendOutput("Error al actualizar.", ["-1"]);
     }
+} elseif ($method === 'GET' && str_contains($endpoint, "queries")) { /// queries ///
+    $get = $_GET["get"];
+    // obtener todas las consultas
+    $sql = "SELECT * FROM queries";
+    $dateTime = $_GET["date"] ?? date('Y-m-d H:i:s');
+    switch ($get) {
+        case "day":
+        case "today":
+            $sql = "SELECT * FROM queries WHERE DATE(datetime) = DATE('$dateTime')";
+            break;
+        default: //all
+            $sql = "SELECT * FROM queries";
+            break;
+    }
+    $result = mysqli_query($conn, $sql);
+    //responder con los datos
+    sendOutput("Consultas obtenidas.", mysqli_fetch_all($result));
+} elseif ($method === 'POST' && $endpoint === 'queries') {
+    $dateTimeNow = date('Y-m-d H:i:s');
+    $idPatient = intval($_POST["idPatient"]);
+    $weight = doubleval($_POST["weight"]);
+    $pressure = $_POST["pressure"];
+    $temperature = doubleval($_POST["temperature"]);
+    $currentsurgery = boolval($_POST["currentsurgery"]);
+    $selfmedication = $_POST["selfmedication"];
+    $diseasesandallergies = $_POST["diseasesandallergies"];
+    $status = 1; // 1 = espera \\ 2 = abandono \\ 3 = atendido //
+
+    // Comprueba si ya existe un registro con las mismas condiciones.
+    $checkSql = "SELECT idQueries FROM queries WHERE patients_idPatient = '$idPatient' AND status = 1 AND prescription_idprescription IS NULL AND DATE(datetime) = DATE('$dateTimeNow')";
+    $result = mysqli_query($conn, $checkSql);
+    if (mysqli_num_rows($result) > 0) sendOutput("Ya existe un registro", ["-1"]);
+
+    // Sentencia SQL para la inserción
+    $sql = "INSERT INTO queries (datetime, weight, pressure, temperature, currentsurgery, selfmedication, diseasesandallergies, status, patients_idPatient) VALUES ('$dateTimeNow', '$weight', '$pressure', '$temperature', '$currentsurgery', '$selfmedication', '$diseasesandallergies', '$status', '$idPatient')";
+
+    //datos para la respuesta
+    $message = "";
+    $id = -1;
+
+    // Ejecutar la consulta
+    if (mysqli_query($conn, $sql)) {
+        $id = mysqli_insert_id($conn);
+        $message = "Insertado con éxito.";
+    } else {
+        $message = "Error al insertar.";
+    }
+
+    //responder con los datos
+    sendOutput($message, ["$id", "$dateTimeNow"]);
 }

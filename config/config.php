@@ -7,6 +7,8 @@ header('Content-Type: application/json');
 
 const URL_BASE = "http://192.168.100.4/index.php/";
 
+date_default_timezone_set('America/Mexico_City');
+
 /**
  * @param string $message
  * @param array $data
