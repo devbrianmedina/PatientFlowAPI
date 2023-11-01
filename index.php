@@ -65,10 +65,14 @@ if ($method === 'GET' && $endpoint === 'patients') { /// patients ///
     // obtener todas las consultas
     $sql = "SELECT * FROM queries";
     $dateTime = $_GET["date"] ?? date('Y-m-d H:i:s');
+    $dateTime2 = $_GET["date2"] ?? date('Y-m-d H:i:s');
     switch ($get) {
         case "day":
         case "today":
             $sql = "SELECT * FROM queries WHERE DATE(datetime) = DATE('$dateTime')";
+            break;
+        case "range":
+            $sql = "SELECT * FROM queries WHERE datetime >= '$dateTime' AND datetime <= '$dateTime2'";
             break;
         default: //all
             $sql = "SELECT * FROM queries";
