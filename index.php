@@ -114,4 +114,42 @@ if ($method === 'GET' && $endpoint === 'patients') { /// patients ///
 
     //responder con los datos
     sendOutput($message, ["$id", "$dateTimeNow"]);
+} elseif ($method === 'POST' && $endpoint === 'prescriptions') {
+    // Datos de la prescripción
+    $observations = $_POST["observations"];
+    $medicines = $_POST["medicines"];
+    $datetime = date("Y-m-d H:i:s"); // Obtener la fecha y hora actual
+
+    // Obtener el ID de la consulta actual
+    $queryId = intval($_POST["query_id"]);
+
+    // Verificar si la consulta tiene estado 3 y no tiene una prescripción asociada
+    $checkQueryStatusSql = "SELECT status, prescription_idprescription FROM queries WHERE idQueries = $queryId";
+    $queryStatusResult = mysqli_query($conn, $checkQueryStatusSql);
+    $row = mysqli_fetch_assoc($queryStatusResult);
+
+    if ($row["status"] == 3 || $row["prescription_idprescription"] !== null) {
+        // La consulta ya tiene estado 3 o ya tiene una prescripción asociada
+        $message = "No se puede generar una prescripción para esta consulta.";
+        sendOutput($message, ["-1"]);
+    } else {
+        // Insertar la nueva prescripción
+        $insertPrescriptionSql = "INSERT INTO prescription (observations, medicines, datetime) VALUES ('$observations', '$medicines', '$datetime')";
+        if (mysqli_query($conn, $insertPrescriptionSql)) {
+            $prescriptionId = mysqli_insert_id($conn);
+
+            // Actualizar el estado de la consulta y asociar la prescripción
+            $updateQuerySql = "UPDATE queries SET status = 3, prescription_idprescription = $prescriptionId WHERE idQueries = $queryId";
+            if (mysqli_query($conn, $updateQuerySql)) {
+                $message = "Prescripción generada con éxito.";
+                sendOutput($message, ["$prescriptionId"]);
+            } else {
+                $message = "Error al actualizar la consulta.";
+                sendOutput($message, ["-1"]);
+            }
+        } else {
+            $message = "Error al insertar la prescripción.";
+            sendOutput($message, ["-1"]);
+        }
+    }
 }
