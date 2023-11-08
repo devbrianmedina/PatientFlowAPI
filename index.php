@@ -152,4 +152,25 @@ if ($method === 'GET' && $endpoint === 'patients') { /// patients ///
             sendOutput($message, ["-1"]);
         }
     }
+} elseif ($method === 'GET' && str_contains($endpoint, "prescriptions")) { /// queries ///
+    $get = $_GET["get"];
+    // obtener todas las consultas
+    $sql = "SELECT * FROM prescription";
+    $dateTime = $_GET["date"] ?? date('Y-m-d H:i:s');
+    $dateTime2 = $_GET["date2"] ?? date('Y-m-d H:i:s');
+    switch ($get) {
+        case "day":
+        case "today":
+            $sql = "SELECT * FROM prescription WHERE DATE(datetime) = DATE('$dateTime')";
+            break;
+        case "range":
+            $sql = "SELECT * FROM prescription WHERE datetime >= '$dateTime' AND datetime <= '$dateTime2'";
+            break;
+        default: //all
+            $sql = "SELECT * FROM prescription";
+            break;
+    }
+    $result = mysqli_query($conn, $sql);
+    //responder con los datos
+    sendOutput("Prescripciones obtenidas.", mysqli_fetch_all($result));
 }
