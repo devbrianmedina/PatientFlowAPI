@@ -114,6 +114,20 @@ if ($method === 'GET' && $endpoint === 'patients') { /// patients ///
 
     //responder con los datos
     sendOutput($message, ["$id", "$dateTimeNow"]);
+} elseif ($method === 'PUT' && preg_match('/^queries\/(\d+)$/', $endpoint, $matches)) {
+    $idQuery = $matches[1];
+    //obtiene los datos del body
+    parse_str(file_get_contents('php://input'), $_PUT);
+    //actualizar paciente
+    $status = intval($_PUT["status"]);
+
+    $sql = "UPDATE queries SET status = '$status' WHERE idQueries = '$idQuery'";
+
+    if (mysqli_query($conn, $sql)) {
+        sendOutput("Actualizado con éxito.", ["1"]);
+    } else {
+        sendOutput("Error al actualizar.", ["-1"]);
+    }
 } elseif ($method === 'POST' && $endpoint === 'prescriptions') {
     // Datos de la prescripción
     $observations = $_POST["observations"];
