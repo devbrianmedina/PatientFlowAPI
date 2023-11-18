@@ -22,7 +22,6 @@ function sendOutput(string $message, array $data = []): void {
     exit;
 }
 
-
 $servername = "localhost";
 $username = "brian";
 $password = "237815";
