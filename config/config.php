@@ -5,8 +5,6 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
-const URL_BASE = "http://192.168.100.4/index.php/";
-
 date_default_timezone_set('America/Mexico_City');
 
 /**
